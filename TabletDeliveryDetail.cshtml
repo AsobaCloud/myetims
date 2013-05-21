@@ -1,0 +1,130 @@
+@model eTIMs.Models.TabletDeliveryDetailPageModel
+@using Trirand.Web.Mvc
+@{
+    ViewBag.Title = "Tablet Delivery Detail";
+}
+<script type="text/javascript" language="javascript">
+    jQuery(document).ready(function () {
+        DisplayMessages();
+        jQuery("#JQGrid1").jqGrid({
+            url: '/Master/TabletDeliveryDetailSearchGridDataRequested?tabletSerialNo=' + '@Model.TabletSerialNumber',
+            datatype: 'json',
+            mtype: 'GET',
+            colNames: ['หมายเลขเครื่อง (Serial No.)', 'MacAddress', 'เขตการศึกษา', 'ชื่อคลังสินค้า', 'วันที่รับ'],
+            colModel: [
+              { name: 'tabletSerialNo', index: 'tabletSerialNo', width: 100, align: 'left', hidden: false, editable: false },
+              { name: 'tabletMacAddress', index: 'tabletMacAddress', width: 300, align: 'left', editable: true },
+              { name: 'districtName', index: 'districtName', width: 150, align: 'left', hidden: true, editable: true },
+              { name: 'inventoryName', index: 'inventoryName', width: 150, align: 'left', hidden: true, editable: true },
+              { name: 'actualRecievedDate', index: 'actualRecievedDate', width: 150, align: 'left', hidden: true, editable: true }
+            ],
+            pager: jQuery('#pager'),
+            width: 840,
+            height: 'auto',
+            rowNum: 10,
+            rowList: [5, 10, 20, 50],
+            sortname: 'Id',
+            sortorder: "asc",
+            viewrecords: true,
+            rownumbers: true,
+            emptyrecords: 'ไม่มีข้อมูล',
+            editurl: '/Master/TabletDeliveryDetailSearchGridDataRequested/',
+            editDialogOptions: {
+                "editCaption": "แก้ไขรายรายละเอียดโรงเรียน",
+                "bCancel": "ยกเลิก",
+                "bSubmit": "บันทึก",
+                "recreateForm": true,
+                "closeAfterEdit": true,
+                afterComplete: afterEdit,
+                errorTextFormat: function (data) {
+                    return 'Error: ' + data.responseText
+                },
+                editData: {
+                    __RequestVerificationToken: jQuery('input[name=__RequestVerificationToken]').val()
+                }
+            },
+            addDialogOptions: {
+                "addCaption": "เพิ่มโรงเรียน",
+                "closeAfterAdd": true,
+                "bCancel": "ยกเลิก",
+                "bSubmit": "บันทึก",
+                "recreateForm": true,
+                afterComplete: afterAdd,
+                errorTextFormat: function (data) {
+                    return 'Error: ' + data.responseText
+                },
+                editData: {
+                    __RequestVerificationToken: jQuery('input[name=__RequestVerificationToken]').val()
+                }
+            },
+            delDialogOptions: {
+                "recreateForm": true,
+                "bCancel": "ยกเลิก",
+                "bSubmit": "ตกลง",
+                "msg": "ยืนยันการลบข้อมูล",
+                "caption": "แจ้งเตือน",
+                afterComplete: afterDelete,
+                errorTextFormat: function (data) {
+                    return 'Error: ' + data.responseText
+                },
+                delData: {
+                    __RequestVerificationToken: jQuery('input[name=__RequestVerificationToken]').val()
+                }
+            }
+            //            caption: 'News List'
+        }).navGrid('#pager',
+        {
+            "edit": true,
+            "add": false,
+            "del": true,
+            "search": false,
+            "refresh": true,
+            "view": false,
+            "position": "left",
+            "cloneToTop": true
+        },
+        jQuery('#JQGrid1').getGridParam('editDialogOptions'),
+        jQuery('#JQGrid1').getGridParam('addDialogOptions'),
+        jQuery('#JQGrid1').getGridParam('delDialogOptions')
+        );
+        $("#JQGrid1").parents('div.ui-jqgrid-bdiv').css("min-height", "200px");
+        //ReloadGrid();
+    });
+    
+
+    function ReloadGrid() {
+        $('#JQGrid1').setGridParam({ url: '/Master/TabletDeliveryDetailSearchGridDataRequested?tabletSerialNo=' + '@Model.TabletSerialNumber' });
+        jQuery("#JQGrid1").trigger("reloadGrid");
+    }
+
+    function afterEdit(){
+    }
+    function afterAdd(){
+    }
+    function afterDelete(){
+    }
+
+    function DisplayMessages() {
+        if ("@ViewBag.error_message" != "")
+            jAlert("error", "@ViewBag.error_message", "Error ");
+        if ("@ViewBag.success_message" != "")
+            jAlert("info", "@ViewBag.success_message", "Success ");
+    }
+
+</script>
+
+    <h2>
+        รายละเอียดการจัดส่งของแท็บเล็ต @Model.TabletSerialNumber
+    </h2>
+
+    <div class="shadow">
+            <div class="content_widgets">
+            <div>           
+
+            <table id="JQGrid1" class="scroll" cellpadding="0" cellspacing="0"></table>
+
+            <div id="pager" class="scroll" style="text-align:center;"></div>
+            </div>
+    <input type="button" name="back" id="back" onclick="window.location='/Master/Tablet'" value="กลับ"/>
+        </div>
+    </div>
