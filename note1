@@ -1,0 +1,88 @@
+public JsonResult DistrictMasterSearchGridDataRequested(string tabletSerialNo = "")
+        {
+            var gridModel = new TabletDeliveryHistoryJqgridModel();
+            var masterModel = new MasterDataContext();
+            var result = from dtrict in masterModel.DDistricts
+                         join dtor in masterModel.DDistributors on dtrict.Id equals dtor.DistrictId
+                         join dlot in masterModel.DDeliveryLots on dtor.Id equals dlot.ReceiverId
+                         join dlottab in masterModel.DDeliveryLot_Tablets on dlot.Id equals dlottab.DeliveryLotId
+                         join tab in masterModel.TTablets on dlottab.TabletSerialNo equals tab.SerialNo
+                         where dlottab.TabletSerialNo == tabletSerialNo
+                         select new TabletDeliveryHistoryQueryModel
+                         {
+                             tabletSerialNo = tab.SerialNo,
+                             tabletMacAddress = tab.MacAddress,
+                             districtName = dtrict.Name,
+                             actualRecievedDate = dlot.ActualReceivedDate.Value,
+                             inventoryName = "test inventory"
+                         };
+
+            gridModel.MasterGrid.DataSource = result;
+            return gridModel.MasterGrid.DataBind(result);
+        }
+        
+        
+public class TabletDeliveryHistoryQueryModel
+    {
+        public string tabletSerialNo { get; set; }
+        public string tabletMacAddress { get; set; }
+        public string districtName { get; set; }
+        public string inventoryName { get; set; }
+        public DateTime actualRecievedDate { get; set; }
+    }
+    
+
+public class TabletDeliveryHistoryJqgridModel
+    {
+        public TabletDeliveryHistoryJqgridModel()
+        {
+            JQGridColumn a = new JQGridColumn();
+            MasterGrid = new JQGrid
+            {
+                Columns = new List<JQGridColumn>()
+                                 {
+                                     new JQGridColumn { DataField = "tabletSerialNo", 
+                                                        HeaderText = "หมายเลขเครื่อง (Serial No.)",
+                                                        // always set PrimaryKey for Add,Edit,Delete operations
+                                                        // if not set, the first column will be assumed as primary key
+                                                        PrimaryKey = false,
+                                                        Editable = false,
+                                                        Width = 100,
+                                                        Searchable = false,
+                                                        DataType = typeof(string)},
+                                     new JQGridColumn { DataField = "tabletMacAddress", 
+                                                        HeaderText = "MacAddress",
+                                                        Editable = false,
+                                                        Width = 300,
+                                                        Searchable = false,
+                                                        DataType = typeof(string)},
+                                     new JQGridColumn { DataField = "districtName", 
+                                                        HeaderText = "เขตการศึกษา",
+                                                        Editable = false,
+                                                        Visible = false,
+                                                        Width = 300,
+                                                        Searchable = false,
+                                                        DataType = typeof(string)},
+                                     new JQGridColumn { DataField = "actualRecievedDate", 
+                                                        HeaderText = "วันที่รับ",
+                                                        Editable = false,
+                                                        Width = 300,
+                                                        Searchable = false,
+                                                        DataType = typeof(DateTime),
+                                                        SearchControlID = "actualRecievedDate"},
+                                     new JQGridColumn { DataField = "inventoryName", 
+                                                        HeaderText = "ชื่อคลังสินค้า",
+                                                        Editable = false,
+                                                        Visible = false,
+                                                        Width = 300,
+                                                        Searchable = false,
+                                                        DataType = typeof(string)}                                           
+                                 },
+                Width = Unit.Pixel(840)
+            };
+
+            MasterGrid.ToolBarSettings.ShowRefreshButton = true;
+        }
+
+        public JQGrid MasterGrid { get; set; }
+    }
